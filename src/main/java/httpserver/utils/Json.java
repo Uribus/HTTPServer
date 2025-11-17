@@ -12,7 +12,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 
 public class Json {
-    private static ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper = defaulObjectMapper();
 
     private static ObjectMapper defaulObjectMapper() {
         ObjectMapper objMapper = JsonMapper.builder()
