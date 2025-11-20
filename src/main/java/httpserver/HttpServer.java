@@ -20,7 +20,7 @@ public class HttpServer {
             + conf.getWebroot());
 
         
-        try {
+        try (
             // socket setup and listening ready to accept
             ServerSocket serverSocket = new ServerSocket(conf.getPort());
             Socket socket = serverSocket.accept();
@@ -29,6 +29,7 @@ public class HttpServer {
             InputStream inputStream = socket.getInputStream();
             // For reading output
             OutputStream outputStream = socket.getOutputStream();
+        ) {
         
             // Ready output
             String htmlPage = "<html>"
@@ -46,11 +47,6 @@ public class HttpServer {
 
             // Write output
             outputStream.write(response.getBytes());
-
-            inputStream.close();
-            outputStream.close();
-            socket.close();
-            serverSocket.close();
 
         } catch (IOException e) {
             e.printStackTrace();
