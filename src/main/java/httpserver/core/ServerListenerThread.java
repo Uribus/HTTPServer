@@ -25,36 +25,38 @@ public class ServerListenerThread extends Thread {
 
     @Override
     public void run() {
-        try (
-            // socket setup and listening ready to accept
-            Socket socket = serverSocket.accept();
-            // For reading input
-            InputStream inputStream = socket.getInputStream();
-            // For reading output
-            OutputStream outputStream = socket.getOutputStream();
-        ) {
-            
-            LOGGER.info(" * Connection accepted: " + socket.getInetAddress());
+        while (serverSocket.isBound() && !serverSocket.isClosed()) {
+            try (
+                // socket setup and listening ready to accept
+                Socket socket = serverSocket.accept();
+                // For reading input
+                InputStream inputStream = socket.getInputStream();
+                // For reading output
+                OutputStream outputStream = socket.getOutputStream();
+            ) {
+                
+                    LOGGER.info(" * Connection accepted: " + socket.getInetAddress());
 
-            // Ready output
-            String htmlPage = "<html>"
-                                + "<head>"
-                                    + "<title>Simpple HTTP Server</title>" 
-                                + "</head>"
-                                + "<body>"
-                                    + "<h1>Content served by HTTP Server</h1>"
-                                + "</body>"
-                                + "</html>";
-            final String cNf ="\r\n"; // Carriage return and feed line
-            String response = "HTTP/1.1 200 OK"+ cNf // RESPONSE_MESSAGE
-                        + "Content-Length: " + htmlPage.getBytes().length + cNf // HEADER
-                        + cNf + htmlPage + cNf + cNf; // CONTENT
+                    // Ready output
+                    String htmlPage = "<html>"
+                                        + "<head>"
+                                            + "<title>Simpple HTTP Server</title>" 
+                                        + "</head>"
+                                        + "<body>"
+                                            + "<h1>Content served by HTTP Server</h1>"
+                                        + "</body>"
+                                        + "</html>";
+                    final String cNf ="\r\n"; // Carriage return and feed line
+                    String response = "HTTP/1.1 200 OK"+ cNf // RESPONSE_MESSAGE
+                                + "Content-Length: " + htmlPage.getBytes().length + cNf // HEADER
+                                + cNf + htmlPage + cNf + cNf; // CONTENT
 
-            // Write output
-            outputStream.write(response.getBytes());
+                    // Write output
+                    outputStream.write(response.getBytes());
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
