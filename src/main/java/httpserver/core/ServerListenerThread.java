@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -25,37 +23,23 @@ public class ServerListenerThread extends Thread {
 
     @Override
     public void run() {
-        while (serverSocket.isBound() && !serverSocket.isClosed()) {
-            try (
+        try {
+            while (serverSocket.isBound() && !serverSocket.isClosed()) {
                 // socket setup and listening ready to accept
                 Socket socket = serverSocket.accept();
-                // For reading input
-                InputStream inputStream = socket.getInputStream();
-                // For reading output
-                OutputStream outputStream = socket.getOutputStream();
-            ) {
-                
-                    LOGGER.info(" * Connection accepted: " + socket.getInetAddress());
 
-                    // Ready output
-                    String htmlPage = "<html>"
-                                        + "<head>"
-                                            + "<title>Simpple HTTP Server</title>" 
-                                        + "</head>"
-                                        + "<body>"
-                                            + "<h1>Content served by HTTP Server</h1>"
-                                        + "</body>"
-                                        + "</html>";
-                    final String cNf ="\r\n"; // Carriage return and feed line
-                    String response = "HTTP/1.1 200 OK"+ cNf // RESPONSE_MESSAGE
-                                + "Content-Length: " + htmlPage.getBytes().length + cNf // HEADER
-                                + cNf + htmlPage + cNf + cNf; // CONTENT
+                LOGGER.info(" * Connection accepted: " + socket.getInetAddress());
 
-                    // Write output
-                    outputStream.write(response.getBytes());
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                HttpConnectionWorkerThread workerThread = new HttpConnectionWorkerThread(socket);
+                workerThread.start();
+            }
+        } catch (IOException e) {
+            LOGGER.error("There was a problem wiht the socket setup", e);
+        } finally {
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {}
             }
         }
     }
